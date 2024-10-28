@@ -5,6 +5,7 @@ import fixdrive.system.dao.OrcamentoDao;
 import fixdrive.system.dao.OrcamentoDaoFactory;
 import fixdrive.system.entities.Orcamento;
 import fixdrive.system.exceptions.OrcamentoInvalid;
+import fixdrive.system.exceptions.OrcamentoNotFound;
 import fixdrive.system.exceptions.OrcamentoNotUpdate;
 
 import java.sql.Connection;
@@ -41,6 +42,11 @@ public class OrcamentoServiceImpl implements OrcamentoService {
 
     @Override
     public void delete(int id) {
+        try{
+            this.orcamentoDao.deleteOrcamento(id);
+        } catch (Exception e) {
+            throw new OrcamentoNotFound(id);
+        }
 
     }
 }

@@ -19,6 +19,9 @@ public class Orcamento {
         this.valorServico = valorServico;
     }
 
+    public Orcamento(Double valorPeca, Double valorServico) {
+    }
+
 
     public Integer getId() {
         return id;
