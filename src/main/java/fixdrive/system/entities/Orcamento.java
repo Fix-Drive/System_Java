@@ -3,9 +3,9 @@ package fixdrive.system.entities;
 public class Orcamento {
 
 
-    private String tipoPeca;
-    private String valorPeca;
-    private double valorDiagnostico;
+    private Integer id;
+    private double valorPeca;
+    private double valorServico;
 
 
     public Orcamento() {
@@ -13,46 +13,34 @@ public class Orcamento {
     }
 
 
-
-    public Orcamento(String tipoPeca, String valorPeca, double valorDiagnostico) {
-        this.tipoPeca = tipoPeca;
+    public Orcamento(Integer id, double valorPeca, double valorServico) {
+        this.id = id;
         this.valorPeca = valorPeca;
-        this.valorDiagnostico = valorDiagnostico;
+        this.valorServico = valorServico;
     }
 
-    public String getTipoPeca(int tipoPeca) {
-        return this.tipoPeca;
+
+    public Integer getId() {
+        return id;
     }
 
-    public void setTipoPeca(String tipoPeca) {
-        this.tipoPeca = tipoPeca;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
-    public String getValorPeca() {
+    public double getValorPeca() {
         return valorPeca;
     }
 
-    public void setValorPeca(String valorPeca) {
+    public void setValorPeca(double valorPeca) {
         this.valorPeca = valorPeca;
     }
 
-    public double getValorDiagnostico() {
-        return valorDiagnostico;
+    public double getValorServico() {
+        return valorServico;
     }
 
-    public void setValorDiagnostico(double valorDiagnostico) {
-        this.valorDiagnostico = valorDiagnostico;
+    public void setValorServico(double valorServico) {
+        this.valorServico = valorServico;
     }
-
-    public void mostrarOrcamentoDiagnosticoFinal() {
-        System.out.println("A taxa para consulta diagnóstica é de R$ 10,00");
-
-    }
-
-    public void verificarPeca(String tipoPeca) {
-        this.tipoPeca = tipoPeca;
-
-
-    }
-
 }

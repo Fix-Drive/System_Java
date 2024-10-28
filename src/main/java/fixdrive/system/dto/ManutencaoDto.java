@@ -1,27 +1,17 @@
-package fixdrive.system.entities;
+package fixdrive.system.dto;
 
-public class Manutencao {
+public class ManutencaoDto {
 
     private Integer id;
+
     private String tipoManutencao;
+
     private String descricaoManutencao;
+
     private String tipoPeca;
+
     private String recomendacaoCentroAutomotivo;
 
-
-    public Manutencao() {
-    }
-
-    public Manutencao(Integer id, String tipoManutencao, String descricaoManutencao, String tipoPeca, String recomendacaoCentroAutomotivo) {
-        this.id = id;
-        this.tipoManutencao = tipoManutencao;
-        this.descricaoManutencao = descricaoManutencao;
-        this.tipoPeca = tipoPeca;
-        this.recomendacaoCentroAutomotivo = recomendacaoCentroAutomotivo;
-    }
-
-    public Manutencao(String tipoManutencao, String descricaoManutencao, String tipoPeca, String recomendacaoCentroAutomotivo) {
-    }
 
     public Integer getId() {
         return id;
@@ -63,9 +53,3 @@ public class Manutencao {
         this.recomendacaoCentroAutomotivo = recomendacaoCentroAutomotivo;
     }
 }
-
-
-
-
-
-

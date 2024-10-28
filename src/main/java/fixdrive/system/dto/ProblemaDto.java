@@ -1,27 +1,15 @@
-package fixdrive.system.entities;
+package fixdrive.system.dto;
 
-public class Problema {
+public class ProblemaDto {
 
     private Integer id;
+
     private String tipoProblema;
+
     private String descricaoProblema;
+
     private int gravidadeProblema;
 
-
-
-    public Problema() {
-
-    }
-
-    public Problema(Integer id, String tipoProblema, String descricaoProblema, int gravidadeProblema) {
-        this.id = id;
-        this.tipoProblema = tipoProblema;
-        this.descricaoProblema = descricaoProblema;
-        this.gravidadeProblema = gravidadeProblema;
-    }
-
-    public Problema(String tipoProblema, String descricaoProblema, int gravidadeProblema) {
-    }
 
     public Integer getId() {
         return id;
@@ -51,7 +39,7 @@ public class Problema {
         return gravidadeProblema;
     }
 
-    public void setGravidadeProblema(int gravidadeProblema) {
+    public void setGravidadeProblema() {
         this.gravidadeProblema = gravidadeProblema;
     }
 }

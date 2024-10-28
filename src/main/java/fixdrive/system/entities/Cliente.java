@@ -1,7 +1,11 @@
 package fixdrive.system.entities;
 
+import java.time.LocalDate;
+import java.util.Date;
+
 public class Cliente {
 
+    private Integer id;
     private String nome;
     private int idade;
     private String email;
@@ -10,21 +14,43 @@ public class Cliente {
     private long numeroRg;
     private String endereco;
     private long numeroCnh;
+    private LocalDate dataValidadeCnh;
+    private long numeroTelefone;
 
     public Cliente() {
 
     }
 
-    public Cliente(String nome, int idade, String email, String senha, long numeroCpf, long numeroRg, String endereco,
-                   long numeroCnh) {
-        this.nome = nome;
-        this.idade = idade;
-        this.email = email;
-        this.senha = senha;
-        this.numeroCpf = numeroCpf;
-        this.numeroRg = numeroRg;
-        this.endereco = endereco;
-        this.numeroCnh = numeroCnh;
+
+    public Cliente(String nome, String idade, String email, String senha, Long numeroCpf, Long numeroRg, String endereco, Long numeroCnh, int numeroTelefone) {
+    }
+
+    public Cliente(Integer id, String nome, String idade, String email, String senha, Long numeroCpf, Long numeroRg, String endereco, Long numeroCnh, int numeroTelefone) {
+    }
+
+
+    public LocalDate getDataValidadeCnh() {
+        return dataValidadeCnh;
+    }
+
+    public void setDataValidadeCnh(LocalDate dataValidadeCnh) {
+        this.dataValidadeCnh = dataValidadeCnh;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public long getNumeroTelefone() {
+        return numeroTelefone;
+    }
+
+    public void setNumeroTelefone(long numeroTelefone) {
+        this.numeroTelefone = numeroTelefone;
     }
 
     public String getNome() {
@@ -42,9 +68,6 @@ public class Cliente {
     }
 
     public void setIdade(int idade){
-        if (idade < 18) {
-            throw new IllegalArgumentException("O cliente deve ser maior de 18 anos.");
-        }
         this.idade = idade;
 
     }
@@ -65,7 +88,6 @@ public class Cliente {
     }
 
     public void setSenha(String senha) {
-
         this.senha = senha;
     }
 
@@ -75,15 +97,10 @@ public class Cliente {
     }
 
     public void setNumeroCpf(long numeroCpf) {
-        String numeroCpfString = String.valueOf(numeroCpf);
-        if (numeroCpfString.length() != 11) {
-            throw new IllegalArgumentException("O CPF deve ter 11 dígitos.");
-        }
         this.numeroCpf = numeroCpf;
     }
 
     public long getNumeroRg() {
-
         return numeroRg;
     }
 
@@ -107,26 +124,9 @@ public class Cliente {
     }
 
     public void setNumeroCnh(long numeroCnh) {
-        String numeroCnhString = String.valueOf(numeroCnh);
-        if (numeroCnhString.length() != 11) {
-            throw new IllegalArgumentException("O número da CNH deve ter 11 dígitos.");
-        }
-
         this.numeroCnh = numeroCnh;
     }
 
-
-    public void mostrarRegistroDados() {
-        System.out.println("Dados pessoais cadastrados!");
-        System.out.println("");
-        System.out.println("Nome: " + getNome());
-        System.out.println("Número CPF: " + getNumeroCpf());
-        System.out.println("Número RG: " + getNumeroRg());
-        System.out.println("Número CNH: " + getNumeroCnh());
-        System.out.println("Email: " + getEmail());
-        System.out.println("Endereço completo: " + getEndereco());
-
-    }
 }
 
 

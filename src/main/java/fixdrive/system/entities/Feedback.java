@@ -1,6 +1,8 @@
 package fixdrive.system.entities;
 
 public class Feedback {
+
+    private Integer id;
     private String comentarioAvaliativo;
     private int pontuacao;
 
@@ -10,9 +12,18 @@ public class Feedback {
 
     }
 
-    public Feedback(String comentarioAvaliativo, int pontuacao) {
+    public Feedback(Integer id, String comentarioAvaliativo, int pontuacao) {
+        this.id = id;
         this.comentarioAvaliativo = comentarioAvaliativo;
         this.pontuacao = pontuacao;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getComentarioAvaliativo() {
