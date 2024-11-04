@@ -1,21 +1,14 @@
 package fixdrive.system.dao;
 
-import fixdrive.system.entities.Automovel;
-import fixdrive.system.exceptions.ClienteNotFound;
+import fixdrive.system.model.Automovel;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
 public interface AutomovelDao {
-
-    Automovel createAutomovel(Automovel automovel);
-
-    Automovel updateAutomovel(Automovel automovel, Connection connection) throws SQLException, ClienteNotFound;
-
-    List<Automovel> listAutomoveis();
-
-    void deleteById(int id) throws SQLException;
-
-    Automovel findById(int id) throws SQLException;
+    Automovel findById(Long id) throws SQLException;
+    List<Automovel> findAll() throws SQLException;
+    Automovel createAutomovel(Automovel automovel) throws SQLException;
+    void update(Automovel automovel) throws SQLException;
+    void deleteById(Long id) throws SQLException;
 }

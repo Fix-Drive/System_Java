@@ -1,52 +1,40 @@
 package fixdrive.system.service;
 
-import fixdrive.system.connection.ConnectionDb;
 import fixdrive.system.dao.OrcamentoDao;
-import fixdrive.system.dao.OrcamentoDaoFactory;
-import fixdrive.system.entities.Orcamento;
-import fixdrive.system.exceptions.OrcamentoInvalid;
-import fixdrive.system.exceptions.OrcamentoNotFound;
-import fixdrive.system.exceptions.OrcamentoNotUpdate;
+import fixdrive.system.model.Orcamento;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
 public class OrcamentoServiceImpl implements OrcamentoService {
+    private final OrcamentoDao orcamentoDao;
 
-    private OrcamentoDao orcamentoDao = OrcamentoDaoFactory.createOrcamentoDaoImpl();
-
-    @Override
-    public List<Orcamento> listarTodos() {
-        return this.orcamentoDao.listarOrcamentos();
+    public OrcamentoServiceImpl(OrcamentoDao orcamentoDao) {
+        this.orcamentoDao = orcamentoDao;
     }
 
     @Override
-    public Orcamento create(Orcamento orcamento) {
-        if (orcamento.getId() == null) {
-            throw new OrcamentoInvalid();
-        }
-        return this.orcamentoDao.createOrcamento(orcamento);
+    public Orcamento getOrcamentoById(Long id) throws SQLException {
+        return orcamentoDao.findById(id);
     }
 
     @Override
-    public Orcamento update(Orcamento orcamento) {
-        try(Connection connection = ConnectionDb.getInstance().getConnection()){
-            orcamento = this.orcamentoDao.updateOrcamento(orcamento, connection);
-            connection.commit();
-        } catch (SQLException e) {
-            throw new OrcamentoNotUpdate();
-        }
-        return orcamento;
+    public List<Orcamento> getAllOrcamentos() throws SQLException {
+        return orcamentoDao.findAll();
     }
 
     @Override
-    public void delete(int id) {
-        try{
-            this.orcamentoDao.deleteOrcamento(id);
-        } catch (Exception e) {
-            throw new OrcamentoNotFound(id);
-        }
+    public Orcamento createOrcamento(Orcamento orcamento) throws SQLException {
+        return orcamentoDao.createOrcamento(orcamento);
+    }
 
+    @Override
+    public void updateOrcamento(Orcamento orcamento) throws SQLException {
+        orcamentoDao.update(orcamento);
+    }
+
+    @Override
+    public void deleteOrcamento(Long id) throws SQLException {
+        orcamentoDao.deleteById(id);
     }
 }

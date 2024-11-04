@@ -1,54 +1,40 @@
 package fixdrive.system.service;
 
-import fixdrive.system.connection.ConnectionDb;
 import fixdrive.system.dao.ManutencaoDao;
-import fixdrive.system.dao.ManutencaoDaoFactory;
-import fixdrive.system.entities.Manutencao;
-import fixdrive.system.exceptions.ManutencaoInvalid;
-import fixdrive.system.exceptions.ManutencaoNotFound;
-import fixdrive.system.exceptions.ManutencaoNotUpdate;
+import fixdrive.system.model.Manutencao;
 
-import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 public class ManutencaoServiceImpl implements ManutencaoService {
+    private final ManutencaoDao manutencaoDao;
 
-
-    private ManutencaoDao manutencaoDao = ManutencaoDaoFactory.createManutencaoDaoImpl();
-
-
-    @Override
-    public List<Manutencao> listarTodos() {
-        return this.manutencaoDao.listarManutencoes();
+    public ManutencaoServiceImpl(ManutencaoDao manutencaoDao) {
+        this.manutencaoDao = manutencaoDao;
     }
 
     @Override
-    public Manutencao create(Manutencao manutencao) {
-        if (manutencao.getId() == null){
-            throw new ManutencaoInvalid();
-        }
-        return this.manutencaoDao.createManutencao(manutencao);
+    public Manutencao getManutencaoById(Long id) throws SQLException {
+        return manutencaoDao.findById(id);
     }
 
     @Override
-    public Manutencao update(Manutencao manutencao) {
-        try (Connection connection = ConnectionDb.getInstance().getConnection()){
-            manutencao = this.manutencaoDao.updateManutencao(manutencao, connection);
-            connection.commit();
-
-        } catch (Exception e){
-            throw new ManutencaoNotUpdate();
-        }
-        return manutencao;
+    public List<Manutencao> getAllManutencoes() throws SQLException {
+        return manutencaoDao.findAll();
     }
 
     @Override
-    public void delete(int id) {
-        try{
-            this.manutencaoDao.deleteManutencaoById(id);
-        } catch (Exception e){
-            throw new ManutencaoNotFound(id);
-        }
+    public Manutencao createManutencao(Manutencao manutencao) throws SQLException {
+        return manutencaoDao.createManutencao(manutencao);
+    }
 
+    @Override
+    public void updateManutencao(Manutencao manutencao) throws SQLException {
+        manutencaoDao.update(manutencao);
+    }
+
+    @Override
+    public void deleteManutencao(Long id) throws SQLException {
+        manutencaoDao.deleteById(id);
     }
 }

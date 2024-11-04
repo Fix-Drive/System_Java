@@ -1,72 +1,45 @@
 package fixdrive.system.service;
 
-import fixdrive.system.connection.ConnectionDb;
 import fixdrive.system.dao.ClienteDao;
-import fixdrive.system.entities.Cliente;
-import fixdrive.system.exceptions.ClienteInvalid;
-import fixdrive.system.exceptions.ClienteNotFound;
-import fixdrive.system.exceptions.ClienteNotUpdate;
+import fixdrive.system.dao.ClienteDaoImpl;
+import fixdrive.system.exceptions.ExceptionIdadeInvalida;
+import fixdrive.system.model.Cliente;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
 public class ClienteServiceImpl implements ClienteService {
-
-    private ClienteDao clienteDao;
-
+    private ClienteDao clienteDao = new ClienteDaoImpl();
 
     @Override
-    public List<Cliente> listarClientes() throws SQLException {
-        return this.clienteDao.findAll();
+    public Cliente getClienteById(Long id) throws SQLException {
+        return clienteDao.findById(id);
     }
 
     @Override
-    public Cliente create(Cliente cliente) throws ClienteInvalid, SQLException {
-        if (cliente.getId() != null){
-            throw new ClienteInvalid();
-        }
-        validarClientes(cliente);
-        return this.clienteDao.create(cliente);
+    public List<Cliente> getAllClientes() throws SQLException {
+        return clienteDao.findAll();
     }
 
     @Override
-    public Cliente edit(Cliente cliente) throws ClienteNotUpdate, ClienteNotFound {
-        try(Connection connection = ConnectionDb.getInstance().getConnection()){
-            cliente = this.clienteDao.update(cliente, connection);
-            connection.commit();
-
-        } catch (SQLException e) {
-            throw new ClienteNotUpdate();
-        }
-        return cliente;
+    public Cliente createCliente(Cliente cliente) throws SQLException, ExceptionIdadeInvalida {
+        validateIdade(cliente);
+        return clienteDao.createCliente(cliente);
     }
 
     @Override
-    public void delete(int id) throws ClienteNotFound {
-        try {
-            this.clienteDao.deleteById(id);
-        } catch (SQLException e) {
-            throw new ClienteNotFound(id);
-        }
-
+    public void updateCliente(Cliente cliente) throws SQLException {
+        clienteDao.update(cliente);
     }
 
-    public void validarClientes(Cliente cliente) throws ClienteInvalid {
-        if (cliente.getIdade() < 18){
-            throw new ClienteInvalid();
-        }
-        String numeroCpfString = String.valueOf(cliente.getNumeroCpf());
-        if (numeroCpfString.length() != 11){
-            throw new ClienteInvalid();
-        }
-        String numeroRgString = String.valueOf(cliente.getNumeroRg());
-        if (numeroRgString.length() != 9){
-            throw new ClienteInvalid();
-        }
-        String numeroCnhString = String.valueOf(cliente.getNumeroCnh());
-        if (numeroCnhString.length() != 11){
-            throw new ClienteInvalid();
+    @Override
+    public void deleteCliente(Long id) throws SQLException {
+        clienteDao.deleteById(id);
+    }
+
+    private void validateIdade(Cliente cliente) throws ExceptionIdadeInvalida {
+        if (cliente.getIdadeCliente() < 18) {
+            throw new ExceptionIdadeInvalida("O cliente deve ser maior de idade para se cadastrar.");
         }
     }
 }

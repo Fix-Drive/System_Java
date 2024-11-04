@@ -1,122 +1,114 @@
 package fixdrive.system.dao;
 
-import fixdrive.system.connection.ConnectionDb;
-import fixdrive.system.entities.Automovel;
-import fixdrive.system.exceptions.AutomovelNotFound;
+import fixdrive.system.model.Automovel;
+import fixdrive.system.connection.DataBaseConnection;
 
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
-public class AutomovelDaoImpl implements AutomovelDao{
-
-
-    private final Logger log = Logger.getLogger(this.getClass().getName());
-
+public class AutomovelDaoImpl implements AutomovelDao {
 
     @Override
-    public Automovel createAutomovel(Automovel automovel) {
-        final String sql = "INSERT INTO T_VB_AUTOMOVEL(placa_automovel, ds_marca_automovel, ds_modelo_automovel, ano_automovel, cd_chassi, cd_renavam) VALUES (?,?,?,?,?,?)";
-        try(Connection connection = ConnectionDb.getInstance().getConnection()){
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.setString(1, automovel.getPlacaAutomovel());
-            stmt.setString(2, automovel.getMarcaAutomovel());
-            stmt.setString(3, automovel.getModeloAutomovel());
-            stmt.setInt(4, automovel.getAnoAutomovel());
-            stmt.setLong(5, automovel.getNumeroChassi());
-            stmt.setLong(6, automovel.getCodigoRenavam());
-            stmt.executeUpdate();
+    public Automovel findById(Long id) throws SQLException {
+        String sql = "SELECT * FROM T_VB_AUTOMOVEL WHERE ID_AUTOMOVEL = ?";
+        try (Connection conn = DataBaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-        } catch (SQLException e) {
-            this.log.warning("Não foi possível incluir o Automóvel.");
-        }
-        return automovel;
-    }
-
-
-    @Override
-    public Automovel updateAutomovel(Automovel automovel, Connection connection) throws SQLException, AutomovelNotFound {
-        final String sql = "UPDATE INTO T_VB_AUTOMOVEL SET placa_automovel=?, ds_marca_automovel=?, ds_modelo_automovel=?, ano_automovel=?, cd_chassi=?, cd_renavam=? WHERE id_automovel=?";
-        PreparedStatement stmt = connection.prepareStatement(sql);
-        stmt.setString(1, automovel.getPlacaAutomovel());
-        stmt.setString(2, automovel.getMarcaAutomovel());
-        stmt.setString(3, automovel.getModeloAutomovel());
-        stmt.setInt(4, automovel.getAnoAutomovel());
-        stmt.setLong(5, automovel.getNumeroChassi());
-        stmt.setLong(6, automovel.getCodigoRenavam());
-        int atualizacoes = stmt.executeUpdate();
-        if (atualizacoes != 1) {
-            throw new AutomovelNotFound(automovel.getId());
-        }
-        return automovel;
-    }
-
-
-    @Override
-    public List<Automovel> listAutomoveis() {
-        final List<Automovel> automoveis = new ArrayList<>();
-        final String sql = "SELECT * FROM T_VB_AUTOMOVEL";
-        try(Connection connection = ConnectionDb.getInstance().getConnection()){
-            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setLong(1, id);
             ResultSet rs = stmt.executeQuery();
-            while(rs.next()){
-                Automovel automovel = new Automovel();
-                automovel.setId(rs.getInt("id_automovel"));
-                automovel.setPlacaAutomovel(rs.getString("placa_automovel"));
-                automovel.setMarcaAutomovel(rs.getString("marca_automovel"));
-                automovel.setModeloAutomovel(rs.getString("modelo_automovel"));
-                automovel.setAnoAutomovel(rs.getInt("ano_automovel"));
-                automovel.setNumeroChassi(rs.getLong("cd_chassi"));
-                automovel.setCodigoRenavam(rs.getLong("cd_renavam"));
-                automoveis.add(automovel);
+
+            if (rs.next()) {
+                return mapResultSetToAutomovel(rs);
             }
-        } catch (SQLException e) {
-            this.log.warning("Não foi possível recuperar o Automóvel no banco de dados.");
+        }
+        return null;
+    }
+
+    @Override
+    public List<Automovel> findAll() throws SQLException {
+        List<Automovel> automoveis = new ArrayList<>();
+        String sql = "SELECT * FROM T_VB_AUTOMOVEL";
+        try (Connection conn = DataBaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                automoveis.add(mapResultSetToAutomovel(rs));
+            }
         }
         return automoveis;
     }
 
     @Override
-    public void deleteById(int id) throws SQLException {
-        final String sql = "DELETE FROM T_VB_AUTOMOVEL WHERE id_automovel=?";
-        try (Connection connection = ConnectionDb.getInstance().getConnection()) {
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.setInt(1, id);
-            int exclusoes = stmt.executeUpdate();
-            if (exclusoes != 1) {
-                throw new AutomovelNotFound(id);
-            }
-        }
+    public Automovel createAutomovel(Automovel automovel) throws SQLException {
+        String sql = "INSERT INTO T_VB_AUTOMOVEL (ID_AUTOMOVEL, PLACA_AUTOMOVEL, DS_TIPO_AUTOMOVEL, DS_MARCA_AUTOMOVEL, " +
+                "DS_MODELO_AUTOMOVEL, DS_PORTE_AUTOMOVEL, ANO_AUTOMOVEL, CD_CHASSI, CD_RENAVAM, ID_CLIENTE) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
+        try (Connection conn = DataBaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, automovel.getIdAutomovel()); // ID gerado manualmente
+            stmt.setString(2, automovel.getPlacaAutomovel());
+            stmt.setString(3, automovel.getTipoAutomovel());
+            stmt.setString(4, automovel.getMarcaAutomovel());
+            stmt.setString(5, automovel.getModeloAutomovel());
+            stmt.setString(6, automovel.getPorteAutomovel());
+            stmt.setInt(7, automovel.getAnoAutomovel());
+            stmt.setString(8, automovel.getNumeroChassi());
+            stmt.setLong(9, automovel.getCodigoRenavam());
+            stmt.setLong(10, automovel.getIdCliente());
+
+            stmt.executeUpdate();
+        }
+        return automovel;
     }
 
     @Override
-    public Automovel findById(int id) throws SQLException {
-        final String sql = "SELECT * FROM T_VB_AUTOMOVEL WHERE id_automovel=?";
-        Automovel automovelEncontrado = null;
-        try (Connection connection = ConnectionDb.getInstance().getConnection()) {
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.setInt(1, id);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                automovelEncontrado = new Automovel();
-                automovelEncontrado.setId(rs.getInt("id_automovel"));
-                automovelEncontrado.setPlacaAutomovel(rs.getString("placa_automovel"));
-                automovelEncontrado.setMarcaAutomovel(rs.getString("marca_automovel"));
-                automovelEncontrado.setModeloAutomovel(rs.getString("modelo_automovel"));
-                automovelEncontrado.setAnoAutomovel(rs.getInt("ano_automovel"));
-                automovelEncontrado.setNumeroChassi(rs.getLong("cd_chassi"));
-                automovelEncontrado.setCodigoRenavam(rs.getLong("cd_renavam"));
+    public void update(Automovel automovel) throws SQLException {
+        String sql = "UPDATE T_VB_AUTOMOVEL SET PLACA_AUTOMOVEL = ?, DS_TIPO_AUTOMOVEL = ?, DS_MARCA_AUTOMOVEL = ?, " +
+                "DS_MODELO_AUTOMOVEL = ?, DS_PORTE_AUTOMOVEL = ?, ANO_AUTOMOVEL = ?, CD_CHASSI = ?, CD_RENAVAM = ?, " +
+                "ID_CLIENTE = ? WHERE ID_AUTOMOVEL = ?";
+        try (Connection conn = DataBaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            } else {
-                throw new AutomovelNotFound(id);
-            }
+            stmt.setString(1, automovel.getPlacaAutomovel());
+            stmt.setString(2, automovel.getTipoAutomovel());
+            stmt.setString(3, automovel.getMarcaAutomovel());
+            stmt.setString(4, automovel.getModeloAutomovel());
+            stmt.setString(5, automovel.getPorteAutomovel());
+            stmt.setInt(6, automovel.getAnoAutomovel());
+            stmt.setString(7, automovel.getNumeroChassi());
+            stmt.setLong(8, automovel.getCodigoRenavam());
+            stmt.setLong(9, automovel.getIdCliente());
+            stmt.setLong(10, automovel.getIdAutomovel());
+
+            stmt.executeUpdate();
         }
-        return automovelEncontrado;
+    }
+
+    @Override
+    public void deleteById(Long id) throws SQLException {
+        String sql = "DELETE FROM T_VB_AUTOMOVEL WHERE ID_AUTOMOVEL = ?";
+        try (Connection conn = DataBaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, id);
+            stmt.executeUpdate();
+        }
+    }
+
+    private Automovel mapResultSetToAutomovel(ResultSet rs) throws SQLException {
+        Automovel automovel = new Automovel();
+        automovel.setIdAutomovel(rs.getLong("ID_AUTOMOVEL"));
+        automovel.setPlacaAutomovel(rs.getString("PLACA_AUTOMOVEL"));
+        automovel.setTipoAutomovel(rs.getString("DS_TIPO_AUTOMOVEL"));
+        automovel.setMarcaAutomovel(rs.getString("DS_MARCA_AUTOMOVEL"));
+        automovel.setModeloAutomovel(rs.getString("DS_MODELO_AUTOMOVEL"));
+        automovel.setPorteAutomovel(rs.getString("DS_PORTE_AUTOMOVEL"));
+        automovel.setAnoAutomovel(rs.getInt("ANO_AUTOMOVEL"));
+        automovel.setNumeroChassi(rs.getString("CD_CHASSI"));
+        automovel.setCodigoRenavam(rs.getLong("CD_RENAVAM"));
+        automovel.setIdCliente(rs.getLong("ID_CLIENTE"));
+        return automovel;
     }
 }

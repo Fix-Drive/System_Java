@@ -1,69 +1,123 @@
 package fixdrive.system.controller;
 
 import fixdrive.system.dto.ManutencaoDto;
-import fixdrive.system.entities.Manutencao;
-import fixdrive.system.exceptions.ManutencaoInvalid;
-import fixdrive.system.exceptions.ManutencaoNotFound;
-import fixdrive.system.exceptions.ManutencaoNotUpdate;
-import fixdrive.system.exceptions.ProblemaNotFound;
+import fixdrive.system.model.Manutencao;
 import fixdrive.system.service.ManutencaoService;
-import fixdrive.system.service.ManutencaoServiceImpl;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
+import java.sql.SQLException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Path("/manutencao")
 public class ManutencaoController {
+    private final ManutencaoService manutencaoService;
 
-    private ManutencaoService manutencaoService = new ManutencaoServiceImpl();
+    public ManutencaoController(ManutencaoService manutencaoService) {
+        this.manutencaoService = manutencaoService;
+    }
 
     @GET
-    @Path("/manutencoes")
+    @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllManutencoes(){
-        return Response.status(Response.Status.OK).entity(this.manutencaoService.listarTodos()).build();
+    public Response getManutencaoById(@PathParam("id") Long id) {
+        try {
+            Manutencao manutencao = manutencaoService.getManutencaoById(id);
+            if (manutencao != null) {
+                return Response.ok(mapToDto(manutencao)).build();
+            } else {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+        } catch (SQLException e) {
+            return Response.serverError().entity(e.getMessage()).build();
+        }
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllManutencoes() {
+        try {
+            List<Manutencao> manutencoes = manutencaoService.getAllManutencoes();
+            List<ManutencaoDto> dtos = manutencoes.stream()
+                    .map(this::mapToDto)
+                    .collect(Collectors.toList());
+            return Response.ok(dtos).build();
+        } catch (SQLException e) {
+            return Response.serverError().entity(e.getMessage()).build();
+        }
     }
 
     @POST
-    @Path("")
-    @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response addManutencoe(ManutencaoDto manutencaoDto){
-        try{
-            Manutencao manutencao = new Manutencao(manutencaoDto.getTipoManutencao(), manutencaoDto.getDescricaoManutencao(), manutencaoDto.getTipoPeca(), manutencaoDto.getRecomendacaoCentroAutomotivo());
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response createManutencao(ManutencaoDto manutencaoDto) {
+        try {
+            Manutencao manutencao = new Manutencao();
+            manutencao.setIdManutencao(manutencaoDto.getId());
+            manutencao.setTipoManutencao(manutencaoDto.getTipoManutencao());
+            manutencao.setDescricao(manutencaoDto.getDescricao());
+            manutencao.setPecaManutencao(manutencaoDto.getPecaManutencao());
+            manutencao.setRecomendacaoOficina(manutencaoDto.getRecomendacaoOficina());
+            manutencao.setIdDiagnostico(manutencaoDto.getIdDiagnostico());
+            manutencao.setIdProblema(manutencaoDto.getIdProblema());
+            manutencao.setIdAutomovel(manutencaoDto.getIdAutomovel());
+
+            manutencaoService.createManutencao(manutencao);
             return Response.status(Response.Status.CREATED).entity(manutencao).build();
-        } catch (ManutencaoInvalid e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+        } catch (SQLException e) {
+            return Response.serverError().entity(e.getMessage()).build();
         }
     }
 
     @PUT
-    @Path("{id}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response updateManutencao(@PathParam("id") Integer id, ManutencaoDto manutencaoDto){
-        try{
-            Manutencao manutencao = this.manutencaoService.update(new Manutencao(manutencaoDto.getId(), manutencaoDto.getTipoManutencao(), manutencaoDto.getDescricaoManutencao(), manutencaoDto.getTipoPeca(), manutencaoDto.getRecomendacaoCentroAutomotivo()));
-            return Response.status(Response.Status.OK).entity(manutencao).build();
-        } catch (ProblemaNotFound e) {
-            return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
-        } catch (ManutencaoNotUpdate e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateManutencao(@PathParam("id") Long id, ManutencaoDto manutencaoDto) {
+        try {
+            Manutencao manutencao = manutencaoService.getManutencaoById(id);
+            if (manutencao != null) {
+                manutencao.setTipoManutencao(manutencaoDto.getTipoManutencao());
+                manutencao.setDescricao(manutencaoDto.getDescricao());
+                manutencao.setPecaManutencao(manutencaoDto.getPecaManutencao());
+                manutencao.setRecomendacaoOficina(manutencaoDto.getRecomendacaoOficina());
+                manutencao.setIdDiagnostico(manutencaoDto.getIdDiagnostico());
+                manutencao.setIdProblema(manutencaoDto.getIdProblema());
+                manutencao.setIdAutomovel(manutencaoDto.getIdAutomovel());
+
+                manutencaoService.updateManutencao(manutencao);
+                return Response.ok(manutencao).build();
+            } else {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+        } catch (SQLException e) {
+            return Response.serverError().entity(e.getMessage()).build();
         }
     }
 
     @DELETE
-    @Path("{id}")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response deleteManutencao(@PathParam("id") Integer id){
-        try{
-            this.manutencaoService.delete(id);
-            return Response.status(Response.Status.NO_CONTENT).build();
-        } catch (ManutencaoNotFound e) {
-            return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
+    @Path("/{id}")
+    public Response deleteManutencao(@PathParam("id") Long id) {
+        try {
+            manutencaoService.deleteManutencao(id);
+            return Response.noContent().build();
+        } catch (SQLException e) {
+            return Response.serverError().entity(e.getMessage()).build();
         }
+    }
+
+    private ManutencaoDto mapToDto(Manutencao manutencao) {
+        ManutencaoDto dto = new ManutencaoDto();
+        dto.setId(manutencao.getIdManutencao());
+        dto.setTipoManutencao(manutencao.getTipoManutencao());
+        dto.setDescricao(manutencao.getDescricao());
+        dto.setPecaManutencao(manutencao.getPecaManutencao());
+        dto.setRecomendacaoOficina(manutencao.getRecomendacaoOficina());
+        dto.setIdDiagnostico(manutencao.getIdDiagnostico());
+        dto.setIdProblema(manutencao.getIdProblema());
+        dto.setIdAutomovel(manutencao.getIdAutomovel());
+        return dto;
     }
 }

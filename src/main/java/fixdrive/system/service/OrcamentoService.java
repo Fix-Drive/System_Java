@@ -1,16 +1,14 @@
 package fixdrive.system.service;
 
-import fixdrive.system.entities.Orcamento;
+import fixdrive.system.model.Orcamento;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public interface OrcamentoService {
-
-    List<Orcamento> listarTodos();
-
-    Orcamento create(Orcamento orcamento);
-
-    Orcamento update(Orcamento orcamento);
-
-    void delete(int id);
+    Orcamento getOrcamentoById(Long id) throws SQLException;
+    List<Orcamento> getAllOrcamentos() throws SQLException;
+    Orcamento createOrcamento(Orcamento orcamento) throws SQLException;
+    void updateOrcamento(Orcamento orcamento) throws SQLException;
+    void deleteOrcamento(Long id) throws SQLException;
 }

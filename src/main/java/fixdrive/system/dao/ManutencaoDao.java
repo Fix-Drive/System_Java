@@ -1,21 +1,14 @@
 package fixdrive.system.dao;
 
-import fixdrive.system.entities.Manutencao;
+import fixdrive.system.model.Manutencao;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
 public interface ManutencaoDao {
-
-    Manutencao createManutencao(Manutencao manutencao);
-
-    Manutencao updateManutencao(Manutencao manutencao, Connection connection) throws SQLException;
-
-    List<Manutencao> listarManutencoes();
-
-    void deleteManutencaoById(int id) throws SQLException;
-
-    Manutencao ManutencaoById(int id) throws SQLException;
-
+    Manutencao findById(Long id) throws SQLException;
+    List<Manutencao> findAll() throws SQLException;
+    Manutencao createManutencao(Manutencao manutencao) throws SQLException;
+    void update(Manutencao manutencao) throws SQLException;
+    void deleteById(Long id) throws SQLException;
 }
