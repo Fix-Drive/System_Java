@@ -1,7 +1,7 @@
-package fixdrive.system.dto;
+package fixdrive.system.model;
 
-public class AutomovelDto {
-    private Long id;
+public class Automovel {
+    private Long idAutomovel;
     private String placaAutomovel;
     private String tipoAutomovel;
     private String marcaAutomovel;
@@ -13,12 +13,12 @@ public class AutomovelDto {
     private Long idCliente;
 
     // Getters e Setters
-    public Long getId() {
-        return id;
+    public Long getIdAutomovel() {
+        return idAutomovel;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setIdAutomovel(Long idAutomovel) {
+        this.idAutomovel = idAutomovel;
     }
 
     public String getPlacaAutomovel() {

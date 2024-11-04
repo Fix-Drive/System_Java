@@ -1,23 +1,14 @@
 package fixdrive.system.dao;
 
-import fixdrive.system.entities.Cliente;
-import fixdrive.system.exceptions.ClienteNotFound;
+import fixdrive.system.model.Cliente;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
 public interface ClienteDao {
-
-   Cliente create(Cliente cliente) throws SQLException;
-
-   Cliente update(Cliente cliente, Connection connection) throws SQLException, ClienteNotFound;
-
+   Cliente findById(Long id) throws SQLException;
    List<Cliente> findAll() throws SQLException;
-
-   void deleteById(int id) throws SQLException, ClienteNotFound;
-
-   Cliente findById(int id) throws ClienteNotFound, SQLException;
-
-
+   Cliente createCliente(Cliente cliente) throws SQLException;
+   void update(Cliente cliente) throws SQLException;
+   void deleteById(Long id) throws SQLException;
 }

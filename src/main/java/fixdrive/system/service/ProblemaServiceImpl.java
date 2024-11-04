@@ -1,64 +1,37 @@
 package fixdrive.system.service;
 
-import fixdrive.system.connection.ConnectionDb;
 import fixdrive.system.dao.ProblemaDao;
-import fixdrive.system.dao.ProblemaDaoFactory;
-import fixdrive.system.entities.Problema;
-import fixdrive.system.exceptions.ProblemaInvalid;
-import fixdrive.system.exceptions.ProblemaNotFound;
-import fixdrive.system.exceptions.ProblemaNotUpdate;
+import fixdrive.system.dao.ProblemaDaoImpl;
+import fixdrive.system.model.Problema;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-public class ProblemaServiceImpl implements ProblemaService{
-
-
-    private ProblemaDao problemaDao = ProblemaDaoFactory.createProblemaDaoImpl();
-
-
-
+public class ProblemaServiceImpl implements ProblemaService {
+    private final ProblemaDao problemaDao = new ProblemaDaoImpl();
 
     @Override
-    public List<Problema> listarTodos() {
-        return this.problemaDao.listarProblemas();
+    public Problema getProblemaById(Long id) throws SQLException {
+        return problemaDao.findById(id);
     }
 
     @Override
-    public Problema create(Problema problema) {
-        if (problema.getId() != null){
-            throw new ProblemaInvalid();
-        }
-        validarProblema(problema);
-        return this.problemaDao.createProblema(problema);
+    public List<Problema> getAllProblemas() throws SQLException {
+        return problemaDao.findAll();
     }
 
     @Override
-    public Problema update(Problema problema) {
-        try(Connection connection = ConnectionDb.getInstance().getConnection()){
-            problema = this.problemaDao.updateProblema(problema, connection);
-            connection.commit();
-        } catch (SQLException e) {
-            throw new ProblemaNotUpdate();
-        }
-        return problema;
+    public Problema createProblema(Problema problema) throws SQLException {
+        return problemaDao.createProblema(problema);
     }
 
     @Override
-    public void delete(int id) {
-        try{
-            this.problemaDao.deleteProblemaById(id);
-        } catch (SQLException e) {
-            throw new ProblemaNotFound(id);
-        }
-
+    public void updateProblema(Problema problema) throws SQLException {
+        problemaDao.update(problema);
     }
 
-
-    public void validarProblema(Problema problema) {
-        if (problema.getGravidadeProblema() < 0 && problema.getGravidadeProblema() > 5) {
-            throw new IllegalArgumentException("A gravidade deve ser classificada entre 0 e 5");
-        }
+    @Override
+    public void deleteProblema(Long id) throws SQLException {
+        problemaDao.deleteById(id);
     }
 }

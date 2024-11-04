@@ -1,19 +1,15 @@
 package fixdrive.system.service;
 
-import fixdrive.system.entities.Cliente;
-import fixdrive.system.exceptions.ClienteInvalid;
-import fixdrive.system.exceptions.ClienteNotFound;
+import fixdrive.system.exceptions.ExceptionIdadeInvalida;
+import fixdrive.system.model.Cliente;
 
 import java.sql.SQLException;
 import java.util.List;
 
 public interface ClienteService {
-
-    List<Cliente> listarClientes() throws SQLException;
-
-    Cliente create(Cliente cliente) throws ClienteInvalid, SQLException;
-
-    Cliente edit(Cliente cliente) throws SQLException, ClienteNotFound;
-
-    void delete(int id) throws ClienteNotFound;
+    Cliente getClienteById(Long id) throws SQLException;
+    List<Cliente> getAllClientes() throws SQLException;
+    Cliente createCliente(Cliente cliente) throws SQLException, ExceptionIdadeInvalida;
+    void updateCliente(Cliente cliente) throws SQLException;
+    void deleteCliente(Long id) throws SQLException;
 }

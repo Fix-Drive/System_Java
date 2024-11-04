@@ -1,18 +1,18 @@
-package fixdrive.system.dto;
+package fixdrive.system.model;
 
-public class OrcamentoDto {
-    private Long id;
+public class Orcamento {
+    private Long idOrcamento;
     private Double vlPeca;
     private Double vlServico;
     private Long idManutencao;
 
     // Getters e Setters
-    public Long getId() {
-        return id;
+    public Long getIdOrcamento() {
+        return idOrcamento;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setIdOrcamento(Long idOrcamento) {
+        this.idOrcamento = idOrcamento;
     }
 
     public Double getVlPeca() {

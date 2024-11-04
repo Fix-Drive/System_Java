@@ -1,18 +1,18 @@
-package fixdrive.system.dto;
+package fixdrive.system.model;
 
-public class DiagnosticoDto {
-    private Long id;
+public class Diagnostico {
+    private Long idDiagnostico;
     private String resultadoDiagnostico;
     private Long idProblema;
     private Long idAutomovel;
 
     // Getters e Setters
-    public Long getId() {
-        return id;
+    public Long getIdDiagnostico() {
+        return idDiagnostico;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setIdDiagnostico(Long idDiagnostico) {
+        this.idDiagnostico = idDiagnostico;
     }
 
     public String getResultadoDiagnostico() {

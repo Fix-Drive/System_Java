@@ -1,20 +1,14 @@
 package fixdrive.system.dao;
 
-import fixdrive.system.entities.Problema;
+import fixdrive.system.model.Problema;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
 public interface ProblemaDao {
-
-    Problema createProblema(Problema problema);
-
-    Problema updateProblema(Problema problema, Connection connection) throws SQLException;
-
-    List<Problema> listarProblemas();
-
-    void deleteProblemaById(int id) throws SQLException;
-
-    Problema problemaById(int id) throws SQLException;
+    Problema findById(Long id) throws SQLException;
+    List<Problema> findAll() throws SQLException;
+    Problema createProblema(Problema problema) throws SQLException;
+    void update(Problema problema) throws SQLException;
+    void deleteById(Long id) throws SQLException;
 }

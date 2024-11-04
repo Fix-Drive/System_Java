@@ -1,16 +1,14 @@
 package fixdrive.system.service;
 
-import fixdrive.system.entities.Manutencao;
+import fixdrive.system.model.Manutencao;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public interface ManutencaoService {
-
-    List<Manutencao> listarTodos();
-
-    Manutencao create(Manutencao manutencao);
-
-    Manutencao update(Manutencao manutencao);
-
-    void delete(int id);
+    Manutencao getManutencaoById(Long id) throws SQLException;
+    List<Manutencao> getAllManutencoes() throws SQLException;
+    Manutencao createManutencao(Manutencao manutencao) throws SQLException;
+    void updateManutencao(Manutencao manutencao) throws SQLException;
+    void deleteManutencao(Long id) throws SQLException;
 }

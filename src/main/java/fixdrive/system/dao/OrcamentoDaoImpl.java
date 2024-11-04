@@ -1,107 +1,94 @@
 package fixdrive.system.dao;
 
-import fixdrive.system.connection.ConnectionDb;
-import fixdrive.system.entities.Orcamento;
-import fixdrive.system.exceptions.OrcamentoNotFound;
-import fixdrive.system.exceptions.OrcamentoNotIncluded;
+import fixdrive.system.model.Orcamento;
+import fixdrive.system.connection.DataBaseConnection;
 
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
-public class OrcamentoDaoImpl implements OrcamentoDao{
-
-
-    private final Logger log = Logger.getLogger(this.getClass().getName());
-
+public class OrcamentoDaoImpl implements OrcamentoDao {
 
     @Override
-    public Orcamento createOrcamento(Orcamento orcamento) {
-        final String sql = "INSERT INTO T_VB_ORCAMENTO(vl_peca, vl_servico) VALUES(?,?)";
-        try(Connection connection = ConnectionDb.getInstance().getConnection()){
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.setDouble(1, orcamento.getValorPeca());
-            stmt.setDouble(2, orcamento.getValorServico());
-            int linhasIncluidas = stmt.executeUpdate();
-            if (linhasIncluidas != 1){
-                throw new OrcamentoNotIncluded();
+    public Orcamento findById(Long id) throws SQLException {
+        String sql = "SELECT * FROM T_VB_ORCAMENTO WHERE ID_ORCAMENTO = ?";
+        try (Connection conn = DataBaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setLong(1, id);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return mapResultSetToOrcamento(rs);
             }
-
-        } catch (SQLException e) {
-            this.log.warning("Não foi possível inserir o Orçamento");
-        }
-        return orcamento;
-    }
-
-    @Override
-    public Orcamento updateOrcamento(Orcamento orcamento, Connection connection) throws SQLException {
-        final String sql = "UPDATE INTO T_VB_ORCAMENTO SET vl_peca = ?, vl_servico = ? WHERE id_orcamento = ?";
-        PreparedStatement stmt = connection.prepareStatement(sql);
-        stmt.setDouble(1, orcamento.getValorPeca());
-        stmt.setDouble(2, orcamento.getValorServico());
-        int atualizacoes = stmt.executeUpdate();
-        if (atualizacoes != 1){
-            throw new OrcamentoNotFound(orcamento.getId());
         }
         return null;
     }
 
     @Override
-    public List<Orcamento> listarOrcamentos() {
-        final List<Orcamento> orcamentos = new ArrayList<>();
-        final String sql = "SELECT * FROM T_VB_ORCAMENTO";
-        try(Connection connection = ConnectionDb.getInstance().getConnection()){
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            ResultSet rs = stmt.executeQuery();
-            while(rs.next()){
-                Orcamento orcamento = new Orcamento();
-                orcamento.setId(rs.getInt("id_orcamento"));
-                orcamento.setValorPeca(rs.getDouble("vl_peca"));
-                orcamento.setValorServico(rs.getDouble("vl_servico"));
-                orcamentos.add(orcamento);
+    public List<Orcamento> findAll() throws SQLException {
+        List<Orcamento> orcamentos = new ArrayList<>();
+        String sql = "SELECT * FROM T_VB_ORCAMENTO";
+        try (Connection conn = DataBaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                orcamentos.add(mapResultSetToOrcamento(rs));
             }
-        } catch (Exception e) {
-            this.log.warning("Não foi possível recuperar o Orçamento no banco de dados");
         }
         return orcamentos;
     }
 
     @Override
-    public void deleteOrcamento(int id) throws SQLException {
-        final String sql = "DELETE FROM T_VB_ORCAMENTO WHERE id_orcamento = ?";
-        try(Connection connection = ConnectionDb.getInstance().getConnection()){
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.setInt(1, id);
-            int exclusoes = stmt.executeUpdate();
-            if (exclusoes != 1){
-                throw new OrcamentoNotFound(id);
-            }
-        }
+    public Orcamento createOrcamento(Orcamento orcamento) throws SQLException {
+        String sql = "INSERT INTO T_VB_ORCAMENTO (ID_ORCAMENTO, VL_PECA, VL_SERVICO, ID_MANUTENCAO) " +
+                "VALUES (?, ?, ?, ?)";
 
+        try (Connection conn = DataBaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, orcamento.getIdOrcamento()); // ID gerado manualmente
+            stmt.setDouble(2, orcamento.getVlPeca());
+            stmt.setDouble(3, orcamento.getVlServico());
+            stmt.setLong(4, orcamento.getIdManutencao());
+
+            stmt.executeUpdate();
+        }
+        return orcamento;
     }
 
     @Override
-    public Orcamento orcamentoById(int id) throws SQLException {
-        final String sql = "SELECT * FROM T_VB_ORCAMENTO WHERE id_orcamento = ?";
-        Orcamento orcamentoEncontrado = null;
-        try(Connection connection = ConnectionDb.getInstance().getConnection()){
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.setDouble(1, id);
-            ResultSet rs = stmt.executeQuery();
-            if(rs.next()){
-                orcamentoEncontrado = new Orcamento();
-                orcamentoEncontrado.setId(rs.getInt("id_orcamento"));
-                orcamentoEncontrado.setValorPeca(rs.getDouble("vl_peca"));
-                orcamentoEncontrado.setValorServico(rs.getDouble("vl_servico"));
-            } else{
-                throw new OrcamentoNotFound(id);
-            }
+    public void update(Orcamento orcamento) throws SQLException {
+        String sql = "UPDATE T_VB_ORCAMENTO SET VL_PECA = ?, VL_SERVICO = ?, ID_MANUTENCAO = ? " +
+                "WHERE ID_ORCAMENTO = ?";
+        try (Connection conn = DataBaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setDouble(1, orcamento.getVlPeca());
+            stmt.setDouble(2, orcamento.getVlServico());
+            stmt.setLong(3, orcamento.getIdManutencao());
+            stmt.setLong(4, orcamento.getIdOrcamento());
+
+            stmt.executeUpdate();
         }
-        return orcamentoEncontrado;
+    }
+
+    @Override
+    public void deleteById(Long id) throws SQLException {
+        String sql = "DELETE FROM T_VB_ORCAMENTO WHERE ID_ORCAMENTO = ?";
+        try (Connection conn = DataBaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, id);
+            stmt.executeUpdate();
+        }
+    }
+
+    private Orcamento mapResultSetToOrcamento(ResultSet rs) throws SQLException {
+        Orcamento orcamento = new Orcamento();
+        orcamento.setIdOrcamento(rs.getLong("ID_ORCAMENTO"));
+        orcamento.setVlPeca(rs.getDouble("VL_PECA"));
+        orcamento.setVlServico(rs.getDouble("VL_SERVICO"));
+        orcamento.setIdManutencao(rs.getLong("ID_MANUTENCAO"));
+        return orcamento;
     }
 }

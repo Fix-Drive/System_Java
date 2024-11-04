@@ -1,7 +1,7 @@
-package fixdrive.system.dto;
+package fixdrive.system.model;
 
-public class ManutencaoDto {
-    private Long id;
+public class Manutencao {
+    private Long idManutencao;
     private String tipoManutencao;
     private String descricao;
     private String pecaManutencao;
@@ -11,12 +11,12 @@ public class ManutencaoDto {
     private Long idAutomovel;
 
     // Getters e Setters
-    public Long getId() {
-        return id;
+    public Long getIdManutencao() {
+        return idManutencao;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setIdManutencao(Long idManutencao) {
+        this.idManutencao = idManutencao;
     }
 
     public String getTipoManutencao() {

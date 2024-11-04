@@ -1,71 +1,126 @@
 package fixdrive.system.controller;
 
 import fixdrive.system.dto.AutomovelDto;
-import fixdrive.system.entities.Automovel;
-import fixdrive.system.exceptions.AutomovelInvalid;
-import fixdrive.system.exceptions.AutomovelNotFound;
-import fixdrive.system.exceptions.AutomovelNotUpdate;
-import fixdrive.system.service.AutomovelService;
+import fixdrive.system.model.Automovel;
 import fixdrive.system.service.AutomovelServiceImpl;
-
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Map;
-
+import java.sql.SQLException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Path("/automovel")
 public class AutomovelController {
 
-    private AutomovelService automovelService = new AutomovelServiceImpl();
+    private final AutomovelServiceImpl automovelService = new AutomovelServiceImpl();
 
     @GET
-    @Path("/automoveis")
+    @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllAutomoveis(){
-        return Response.status(Response.Status.OK).entity(this.automovelService.listarTodos()).build();
+    public Response getAutomovelById(@PathParam("id") Long id) {
+        try {
+            Automovel automovel = automovelService.getAutomovelById(id);
+            if (automovel != null) {
+                return Response.ok(mapToDto(automovel)).build();
+            } else {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+        } catch (SQLException e) {
+            return Response.serverError().entity(e.getMessage()).build();
+        }
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllAutomoveis() {
+        try {
+            List<Automovel> automoveis = automovelService.getAllAutomoveis();
+            List<AutomovelDto> dtos = automoveis.stream()
+                    .map(this::mapToDto)
+                    .collect(Collectors.toList());
+            return Response.ok(dtos).build();
+        } catch (SQLException e) {
+            return Response.serverError().entity(e.getMessage()).build();
+        }
     }
 
     @POST
-    @Path("")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addAutomovel(AutomovelDto automovelDto){
-        try{
-            Automovel automovel = new Automovel(automovelDto.getPlacaAutomovel(), automovelDto.getMarcaAutomovel(), automovelDto.getModeloAutomovel(), automovelDto.getAnoAutomovel(), automovelDto.getNumeroChassi(), automovelDto.getCodigoRenavam(), automovelDto.getPorteAutomovel());
-            automovel = this.automovelService.create(automovel);
+    public Response createAutomovel(AutomovelDto automovelDto) {
+        try {
+            Automovel automovel = new Automovel();
+            automovel.setIdAutomovel(automovelDto.getId());
+            automovel.setPlacaAutomovel(automovelDto.getPlacaAutomovel());
+            automovel.setTipoAutomovel(automovelDto.getTipoAutomovel());
+            automovel.setMarcaAutomovel(automovelDto.getMarcaAutomovel());
+            automovel.setModeloAutomovel(automovelDto.getModeloAutomovel());
+            automovel.setPorteAutomovel(automovelDto.getPorteAutomovel());
+            automovel.setAnoAutomovel(automovelDto.getAnoAutomovel());
+            automovel.setNumeroChassi(automovelDto.getNumeroChassi());
+            automovel.setCodigoRenavam(automovelDto.getCodigoRenavam());
+            automovel.setIdCliente(automovelDto.getIdCliente());
+
+            automovelService.createAutomovel(automovel);
             return Response.status(Response.Status.CREATED).entity(automovel).build();
-        } catch(AutomovelInvalid e){
-            return Response.status(Response.Status.BAD_REQUEST).build();
+        } catch (SQLException e) {
+            return Response.serverError().entity(e.getMessage()).build();
         }
     }
 
     @PUT
-    @Path("{id}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response updateAutomovel(@PathParam("id") Integer id, AutomovelDto automovelDto){
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateAutomovel(@PathParam("id") Long id, AutomovelDto automovelDto) {
         try {
-            Automovel automovel = this.automovelService.update(new Automovel(automovelDto.getId(), automovelDto.getPlacaAutomovel(), automovelDto.getMarcaAutomovel(), automovelDto.getModeloAutomovel(), automovelDto.getNumeroChassi(), automovelDto.getCodigoRenavam(), automovelDto.getAnoAutomovel() ,automovelDto.getPorteAutomovel()));
-            return Response.status(Response.Status.OK).entity(automovel).build();
-        } catch (AutomovelNotFound e) {
-            return Response.status(Response.Status.NOT_FOUND).entity(Map.of("mensagem", "ID não existente")).build();
-        } catch (AutomovelNotUpdate e){
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(Map.of("mensagem", "Não foi possível atualizar")).build();
+            Automovel automovel = automovelService.getAutomovelById(id);
+            if (automovel != null) {
+                automovel.setPlacaAutomovel(automovelDto.getPlacaAutomovel());
+                automovel.setTipoAutomovel(automovelDto.getTipoAutomovel());
+                automovel.setMarcaAutomovel(automovelDto.getMarcaAutomovel());
+                automovel.setModeloAutomovel(automovelDto.getModeloAutomovel());
+                automovel.setPorteAutomovel(automovelDto.getPorteAutomovel());
+                automovel.setAnoAutomovel(automovelDto.getAnoAutomovel());
+                automovel.setNumeroChassi(automovelDto.getNumeroChassi());
+                automovel.setCodigoRenavam(automovelDto.getCodigoRenavam());
+                automovel.setIdCliente(automovelDto.getIdCliente());
+
+                automovelService.updateAutomovel(automovel);
+                return Response.ok(automovel).build();
+            } else {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+        } catch (SQLException e) {
+            return Response.serverError().entity(e.getMessage()).build();
         }
     }
 
     @DELETE
-    @Path("{id}")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response deleteAutomovel(@PathParam("id") Integer id){
-        try{
-            this.automovelService.delete(id);
-            return Response.status(Response.Status.NO_CONTENT).build();
-        } catch (AutomovelNotFound e) {
-            return Response.status(Response.Status.NOT_FOUND).build();
+    @Path("/{id}")
+    public Response deleteAutomovel(@PathParam("id") Long id) {
+        try {
+            automovelService.deleteAutomovel(id);
+            return Response.noContent().build();
+        } catch (SQLException e) {
+            return Response.serverError().entity(e.getMessage()).build();
         }
+    }
+
+    private AutomovelDto mapToDto(Automovel automovel) {
+        AutomovelDto dto = new AutomovelDto();
+        dto.setId(automovel.getIdAutomovel());
+        dto.setPlacaAutomovel(automovel.getPlacaAutomovel());
+        dto.setTipoAutomovel(automovel.getTipoAutomovel());
+        dto.setMarcaAutomovel(automovel.getMarcaAutomovel());
+        dto.setModeloAutomovel(automovel.getModeloAutomovel());
+        dto.setPorteAutomovel(automovel.getPorteAutomovel());
+        dto.setAnoAutomovel(automovel.getAnoAutomovel());
+        dto.setNumeroChassi(automovel.getNumeroChassi());
+        dto.setCodigoRenavam(automovel.getCodigoRenavam());
+        dto.setIdCliente(automovel.getIdCliente());
+        return dto;
     }
 }

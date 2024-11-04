@@ -1,16 +1,14 @@
 package fixdrive.system.service;
 
-import fixdrive.system.entities.Problema;
+import fixdrive.system.model.Problema;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public interface ProblemaService {
-
-    List<Problema> listarTodos();
-
-    Problema create(Problema problema);
-
-    Problema update(Problema problema);
-
-    void delete(int id);
+    Problema getProblemaById(Long id) throws SQLException;
+    List<Problema> getAllProblemas() throws SQLException;
+    Problema createProblema(Problema problema) throws SQLException;
+    void updateProblema(Problema problema) throws SQLException;
+    void deleteProblema(Long id) throws SQLException;
 }

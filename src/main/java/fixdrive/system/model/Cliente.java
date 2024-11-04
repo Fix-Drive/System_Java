@@ -1,7 +1,7 @@
-package fixdrive.system.dto;
+package fixdrive.system.model;
 
-public class ClienteDto {
-    private Long id;
+public class Cliente {
+    private Long idCliente;
     private String nmCliente;
     private Integer idadeCliente;
     private String dsEmail;
@@ -13,12 +13,12 @@ public class ClienteDto {
     private Long nrTelefone;
 
     // Getters e Setters
-    public Long getId() {
-        return id;
+    public Long getIdCliente() {
+        return idCliente;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setIdCliente(Long idCliente) {
+        this.idCliente = idCliente;
     }
 
     public String getNmCliente() {
